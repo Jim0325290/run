@@ -1,0 +1,25 @@
+/* 顏色使用基礎色 */
+:root {
+  --primary-color: #4CAF50; /* 綠色，代表健康 */
+  --text-color: #333;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin-top: 50px;
+}
+
+#step-count {
+  font-size: 4em; /* 讓數字非常大 */
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
