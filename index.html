@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最簡步數記錄器</title>
+    <style>
+        /* 參照上方 CSS 簡化部分 */
+        :root { --primary-color: #4CAF50; }
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        #step-count-display { font-size: 4em; color: var(--primary-color); margin-bottom: 20px; }
+        input[type="number"], button { padding: 10px; margin: 5px; }
+        button { background-color: var(--primary-color); color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>👣 今日步數：</h1>
+    <div id="step-count-display">0</div>
+
+    <hr>
+
+    <h2>記錄新步數</h2>
+    <input type="number" id="step-input" placeholder="輸入今日總步數" min="0">
+    <button onclick="recordSteps()">記錄</button>
+
+    <hr>
+
+    <h2>歷史記錄</h2>
+    <ul id="history-list">
+        </ul>
+
+    <script>
+        const STORAGE_KEY = 'simpleStepsTracker';
+
+        /**
+         * 取得今日日期 (YYYY-MM-DD 格式)
+         */
+        function getTodayDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        /**
+         * 從 LocalStorage 載入所有數據
+         */
+        function loadData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : {};
+        }
+
+        /**
+         * 將數據儲存到 LocalStorage
+         * @param {object} data - 步數數據對象
+         */
+        function saveData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        /**
+         * 記錄或更新今日步數
+         */
+        function recordSteps() {
+            const inputElement = document.getElementById('step-input');
+            const steps = parseInt(inputElement.value);
+
+            if (isNaN(steps) || steps < 0) {
+                alert('請輸入有效的步數！');
+                return;
+            }
+
+            const today = getTodayDate();
+            const data = loadData();
+
+            // 更新今日的步數
+            data[today] = steps;
+
+            saveData(data);
+            renderUI(data);
+            inputElement.value = ''; // 清空輸入框
+        }
+
+        /**
+         * 渲染介面：顯示今日步數和歷史記錄
+         * @param {object} data - 步數數據對象
+         */
+        function renderUI(data) {
+            const today = getTodayDate();
+            const todaySteps = data[today] || 0;
+
+            // 1. 顯示今日步數
+            document.getElementById('step-count-display').textContent = todaySteps.toLocaleString();
+
+            // 2. 渲染歷史記錄
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = ''; // 清空舊列表
+
+            // 依日期排序 (從新到舊)
+            const sortedDates = Object.keys(data).sort((a, b) => new Date(b) - new Date(a));
+
+            sortedDates.forEach(date => {
+                const li = document.createElement('li');
+                li.textContent = `${date}: ${data[date].toLocaleString()} 步`;
+                historyList.appendChild(li);
+            });
+        }
+
+        // 初始化網站時載入並渲染數據
+        const initialData = loadData();
+        renderUI(initialData);
+
+    </script>
+</body>
+</html>
